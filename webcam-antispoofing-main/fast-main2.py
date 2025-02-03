@@ -2,15 +2,15 @@ import tkinter
 import customtkinter
 import os
 import shutil
-from src.FaceCaptureAndAugmentation import FaceCaptureAndAugmentation  # Import the class
-from src.FaceRecognitionAttendance import FaceRecognitionAttendance  # Import the class
+from src.FaceCaptureAndAugmentation import FaceCaptureAndAugmentation
+from src.fastFaceRecognitionAttendance import FaceRecognitionAttendance
 from pymongo import MongoClient
 import certifi
 import datetime
 import pytz
 
-customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light")
-customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue")
+customtkinter.set_appearance_mode("System")
+customtkinter.set_default_color_theme("dark-blue")
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -18,16 +18,16 @@ class App(customtkinter.CTk):
 
         # MongoDB Configuration
         client = MongoClient(
-            'mongodb+srv://6420015:afterfallSP1@clusteraf.lcvf3mb.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAF',
+            'mongodb+srv://6420015:afterFallSP2@clusteraf.lcvf3mb.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAF',
             tlsCAFile=certifi.where()
         )
         db = client['afterfall']
-        collection = db['attendances']  # Corrected collection name
+        collection = db['attendances']
 
         # Initialize FaceRecognitionAttendance instance with MongoDB collection
         self.face_recognition_attendance = FaceRecognitionAttendance(
             dataset_path='data/dataset_faces',
-            mongo_collection=collection  # MongoDB collection
+            mongo_collection=collection
         )
 
         # Class-level variable to store the matched classCode
@@ -35,12 +35,12 @@ class App(customtkinter.CTk):
 
         # Configure window
         self.title("AfterFall Face Recognition")
-        self.geometry(f"{780}x450")  # Set the window size here (width x height)
+        self.geometry(f"{780}x450")
 
         # Configure grid layout (2x1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=0)  # Additional row for delete functionality
+        self.grid_rowconfigure(1, weight=0)
 
         # Create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
@@ -54,8 +54,8 @@ class App(customtkinter.CTk):
             self.sidebar_frame,
             text="Face Recognition",
             command=self.show_display_classes_button,
-            fg_color="blue",  # Button color
-            hover_color="darkblue"  # Hover color
+            fg_color="blue",
+            hover_color="darkblue"
         )
         self.display_classes_button.grid(row=1, column=0, padx=20, pady=10)
 
@@ -64,8 +64,8 @@ class App(customtkinter.CTk):
             self.sidebar_frame,
             text="Attendance",
             command=self.display_attendance,
-            fg_color="blue",  # Button color
-            hover_color="darkblue"  # Hover color
+            fg_color="blue",
+            hover_color="darkblue"
         )
         self.display_attendance_button.grid(row=2, column=0, padx=20, pady=10)
 
@@ -74,16 +74,16 @@ class App(customtkinter.CTk):
             self.sidebar_frame,
             text="Face Record",
             command=self.display_user_folders,
-            fg_color="blue",  # Button color
-            hover_color="darkblue"  # Hover color
+            fg_color="blue",
+            hover_color="darkblue"
         )
         self.display_folders_button.grid(row=3, column=0, padx=20, pady=10)
 
-        # Appearance mode label
+        # Appearance mode label and menu
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=4, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
-                                                                       command=self.change_appearance_mode_event)
+                                                                    command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=5, column=0, padx=20, pady=(10, 10))
 
         # Create textbox for displaying data
@@ -99,8 +99,8 @@ class App(customtkinter.CTk):
             self,
             text="Add user",
             command=self.add_user_folder,
-            fg_color="green",  # Button color
-            hover_color="darkgreen"  # Hover color
+            fg_color="green",
+            hover_color="darkgreen"
         )
         self.add_user_button.grid(row=2, column=1, padx=(20, 20), pady=(5, 5), sticky="ew")
 
@@ -109,8 +109,8 @@ class App(customtkinter.CTk):
             self,
             text="Delete User",
             command=self.delete_user_folder,
-            fg_color="red",  # Button color
-            hover_color="darkred"  # Hover color
+            fg_color="red",
+            hover_color="darkred"
         )
         self.delete_user_button.grid(row=3, column=1, padx=(20, 20), pady=(5, 20), sticky="ew")
 
@@ -119,8 +119,8 @@ class App(customtkinter.CTk):
             self,
             text="Delete Attendance",
             command=self.delete_attendance_records,
-            fg_color="red",  # Button color
-            hover_color="darkred"  # Hover color
+            fg_color="red",
+            hover_color="darkred"
         )
 
         # Class-related widgets
@@ -131,8 +131,8 @@ class App(customtkinter.CTk):
             self,
             text="Check Class ID",
             command=self.check_class_id_match,
-            fg_color="blue",  # Button color
-            hover_color="darkblue"  # Hover color
+            fg_color="blue",
+            hover_color="darkblue"
         )
         self.check_class_button.grid_forget()  # Initially hide
 
@@ -141,16 +141,11 @@ class App(customtkinter.CTk):
 
         # Set default values
         self.appearance_mode_optionemenu.set("Dark")
-        self.textbox.insert("0.0", "Hello, welcome to our Assumption University Senior Project 1\n\n"
+        self.textbox.insert("0.0", "Hello, welcome to our Assumption University Senior Project \n\n"
                                    "Contributors (AfterFall team):\n"
                                    "- LORENZO MARTINS DALMEIDA\n"
                                    "- ARCHIT CHANGCHREONKUL\n"
-                                   "- KRITSADA KRUAPAT\n\n"
-                                   "Advisor of this project:\n"
-                                   "- DOBRI ATANASSOV BATOVSKI\n")
-
-
-
+                                   "- KRITSADA KRUAPAT\n\n")
 
     def initialize_face_recognition(self):
         tkinter.messagebox.showinfo("Webcam Instruction", "Press 'q' to end the webcam.")
@@ -162,7 +157,6 @@ class App(customtkinter.CTk):
             self.face_recognition_attendance.process_video_stream(matched_class_code)  # Pass matched_class_code
         else:
             tkinter.messagebox.showerror("Error", "No matched class code found.")
-
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -220,18 +214,15 @@ class App(customtkinter.CTk):
             self.textbox.insert("1.0", f"Error retrieving attendance data: {e}")
 
     def display_user_folders(self):
-        """
-        Fetch all users from the MongoDB database and compare them to the local dataset folders.
-        Display users with no faces dataset and log whether the folder for each user exists or not.
-        Show all users at the end of the list.
-        """
         self.hide_all_delete_widgets()  # Ensure all other widgets are hidden
         self.show_delete_user_widgets()
         folder_path = "data/dataset_faces"
 
         try:
-            # Fetch all users from the MongoDB 'attendances' collection
-            mongo_users = list(self.face_recognition_attendance.mongo_collection.find({}, {'UserID': 1, '_id': 0}))
+            # Use the 'users' collection instead of 'attendances'
+            user_collection = self.face_recognition_attendance.mongo_collection.database['users']
+            mongo_users = list(user_collection.find({}, {'id': 1, '_id': 0}))
+            
             if not mongo_users:
                 tkinter.messagebox.showinfo("Info", "No users found in MongoDB.")
                 return
@@ -241,7 +232,7 @@ class App(customtkinter.CTk):
             folders = [folder for folder in folders if folder != ".DS_Store"]
 
             # Prepare MongoDB user list for easier comparison
-            mongo_user_ids = [user.get("UserID") for user in mongo_users]
+            mongo_user_ids = [str(user.get("id")) for user in mongo_users]
 
             # Prepare the data to display in the textbox
             user_data = "No faces record on this local device, please add the green button below\n"
@@ -314,10 +305,6 @@ class App(customtkinter.CTk):
             tkinter.messagebox.showerror("Error", f"An error occurred while deleting attendance data: {str(e)}")
 
     def show_display_classes_button(self):
-        """
-        Fetch and display all class IDs from the MongoDB database in the textbox.
-        Show the check class ID button and an entry to verify class ID matches.
-        """
         self.hide_all_delete_widgets()  # Hide all other widgets before displaying class widgets
 
         try:
@@ -351,10 +338,6 @@ class App(customtkinter.CTk):
             tkinter.messagebox.showerror("Error", f"An error occurred while fetching class IDs: {str(e)}")
 
     def check_class_id_match(self):
-        """
-        Check if the input class ID matches any class IDs in the MongoDB database.
-        If a match is found, store it in the class-level variable self.matched_class_code and start the face recognition webcam.
-        """
         input_class_id = self.class_id_entry.get().strip()
 
         if not input_class_id:
@@ -404,14 +387,10 @@ class App(customtkinter.CTk):
         self.delete_attendance_button.grid_forget()
 
     def hide_class_widgets(self):
-        """Hides the class ID entry and check button."""
         self.class_id_entry.grid_forget()  # Hide the entry
         self.check_class_button.grid_forget()  # Hide the button
 
     def hide_all_delete_widgets(self):
-        """
-        Hides all the widgets when switching between functionalities.
-        """
         self.hide_delete_user_widgets()
         self.hide_delete_attendance_widgets()
         self.hide_class_widgets()  # Hide class-related widgets when switching
