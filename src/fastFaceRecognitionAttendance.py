@@ -11,6 +11,7 @@ import threading
 from queue import Queue
 from collections import deque
 import pickle
+from src.doorFunc import openDoor, closeDoor
 
 class FaceRecognitionAttendance:
     def __init__(self, dataset_path, pickle_file='face_encodings.pkl', mongo_collection=None):
@@ -24,7 +25,7 @@ class FaceRecognitionAttendance:
         self.EYE_AR_THRESH = 0.25
         self.EYE_AR_CONSEC_FRAMES = 3
         self.thailand_tz = pytz.timezone('Asia/Bangkok')
-        self.blink_frame_buffer = 20  # Number of frames to consider for blink detection
+        self.blink_frame_buffer = 20
 
     def load_face_encodings(self):
         # Try to load existing encodings from pickle file
@@ -127,7 +128,7 @@ class FaceRecognitionAttendance:
                 if user_id != "Unknown" and is_real and user_id not in processed_users:
                     self.log_attendance(user_id, matched_class_code)
                     processed_users.add(user_id)
-                    print(f"Attendance logged for {user_id}")
+                    # print(f"Attendance logged for {user_id}")
 
                 # Draw rectangle and text on the frame
                 for (top, right, bottom, left), face_encoding in zip(face_recognition.face_locations(rgb_small_frame), face_recognition.face_encodings(rgb_small_frame)):
@@ -223,6 +224,10 @@ class FaceRecognitionAttendance:
                     print(f"Matched count: {update_result.matched_count}, Modified count: {update_result.modified_count}")
 
                 print(f"Attendance logged for {user_id} in class {matched_class_code}")
+
+                openDoor()
+
+
 
         except Exception as e:
             print(f"Error logging attendance for {user_id}: {e}")

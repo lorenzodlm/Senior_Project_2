@@ -1,31 +1,30 @@
 import serial
 import time
+import threading
+
 
 arduino = serial.Serial('/dev/cu.usbmodemD83BDA8CFBEC2', 115200, timeout=1)
 time.sleep(2)  
 
+def read_arduino_response():
+    while arduino.in_waiting:  
+        response = arduino.readline().decode('utf-8').strip()
+        if response:
+            print("Arduino Response:", response)
+
 def openDoor():
-    print("Opening the door...")
-    arduino.write(b'openDoor')  
-    response = arduino.readline().decode('utf-8').strip()
-    print("Arduino Response:\n", response)
+    print("Py: Opening the door")
+    arduino.write(b'openDoor') 
+    threading.Thread(target=closeDoor(), daemon=True).start()
 
 def closeDoor():
-    print("Closing the door...")
+    time.sleep(5)
+    print("Py: Closing the door")
     arduino.write(b'closeDoor')  
-    response = arduino.readline().decode('utf-8').strip()  
-    print("Arduino Response:\n", response)
+
+def delayed_close():
+    """Wait 5 seconds, then close the door"""
+    time.sleep(5)  
+    closeDoor()
 
 
-# if __name__ == '__main__':
-#     flag = True
-#     while flag:
-#         inp = input("Enter 'o' to open the door, 'c' to close the door, 'q' to quit: ")
-#         if inp == 'o':
-#             openDoor()
-#         elif inp == 'c':
-#             closeDoor()
-#         elif inp == 'q':
-#             flag = False
-#         else:
-#             print("Invalid input. Please try again.")

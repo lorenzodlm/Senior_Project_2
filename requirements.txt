@@ -18,3 +18,4 @@ scipy==1.13.1
 six==1.16.0
 tzdata==2024.1
 nltk==3.9.1
+pyserial
