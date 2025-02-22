@@ -11,7 +11,7 @@ import threading
 from queue import Queue
 from collections import deque
 import pickle
-# from src.doorFunc import openDoor
+from src.doorFunc import openDoor
 
 class FaceRecognitionAttendance:
     def __init__(self, dataset_path, pickle_file='face_encodings.pkl', mongo_collection=None):

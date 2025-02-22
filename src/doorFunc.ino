@@ -25,13 +25,12 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) { // Check if there's data coming from Python
-    String command = Serial.readString(); // Read the incoming command
+  if (Serial.available()) {
+    String command = Serial.readString();
     
     if (command == "openDoor") {
       openDoor();
-    }
-    else if (command == "closeDoor") {
+      delay(5000);
       closeDoor();
     }
   }
@@ -48,8 +47,6 @@ void closeDoor() {
   matrix.beginText(4, 1, 0xFFFFFF); 
   matrix.println("C"); 
   matrix.endText();
-
-  Serial.println("Door Closed");
 }
 
 void openDoor() {
@@ -63,6 +60,4 @@ void openDoor() {
   matrix.beginText(4, 1, 0xFFFFFF);
   matrix.println("O"); 
   matrix.endText();
-
-  Serial.println("Door Opened");
 }
