@@ -66,6 +66,63 @@ class FaceRecognitionAttendance:
         with open(self.pickle_file, 'wb') as f:
             pickle.dump((known_face_encodings, known_user_ids), f)
         print(f"Saved {len(known_face_encodings)} encodings to {self.pickle_file}")
+    
+    def update_face_encodings(self):
+        print("Updating face encodings...")
+
+        # Load existing encodings
+        if os.path.exists(self.pickle_file):
+            with open(self.pickle_file, 'rb') as f:
+                known_face_encodings, known_user_ids = pickle.load(f)
+        else:
+            known_face_encodings, known_user_ids = [], []
+
+        # Find new users that are not in the existing list
+        existing_users = set(known_user_ids)
+        new_user_encodings = []
+        new_user_ids = []
+
+        for user_id in os.listdir(self.dataset_path):
+            user_folder = os.path.join(self.dataset_path, user_id)
+            
+            if os.path.isdir(user_folder) and user_id not in existing_users:
+                print(f"Processing new user: {user_id}")
+
+                for filename in os.listdir(user_folder):
+                    if filename.endswith(".jpg") or filename.endswith(".png"):
+                        img_path = os.path.join(user_folder, filename)
+                        img = cv2.imread(img_path)
+                        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                        img_encodings = face_recognition.face_encodings(rgb_img)
+
+                        if img_encodings:
+                            img_encoding = img_encodings[0]
+                            new_user_encodings.append(img_encoding)
+                            new_user_ids.append(user_id)
+
+        # Append new encodings to existing ones
+        known_face_encodings.extend(new_user_encodings)
+        known_user_ids.extend(new_user_ids)
+
+        # Save updated pickle file
+        self.save_face_encodings(known_face_encodings, known_user_ids)
+        print(f"Updated pickle file with {len(new_user_encodings)} new users.")
+
+    def reprocess_all_users(self):
+        print("Reprocessing all users...")
+
+        # Delete the existing pickle file
+        if os.path.exists(self.pickle_file):
+            os.remove(self.pickle_file)
+            print("Deleted existing pickle file.")
+
+        # Reprocess all users
+        self.known_face_encodings, self.known_user_ids = self.process_new_users()
+
+        # Save new pickle file
+        self.save_face_encodings(self.known_face_encodings, self.known_user_ids)
+        print("Reprocessed all users and saved new pickle file.")
+
 
     def fetch_data_from_mongo(self):
         try:

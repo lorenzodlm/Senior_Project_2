@@ -52,7 +52,7 @@ class App(customtkinter.CTk):
         # Display Classes Button (Face Recognition)
         self.display_classes_button = customtkinter.CTkButton(
             self.sidebar_frame,
-            text="Face Recognition",
+            text="Start Recognition",
             command=self.show_display_classes_button,
             fg_color="blue",
             hover_color="darkblue"
@@ -62,7 +62,7 @@ class App(customtkinter.CTk):
         # Display Attendance Button
         self.display_attendance_button = customtkinter.CTkButton(
             self.sidebar_frame,
-            text="Attendance",
+            text="Attendance Logs",
             command=self.display_attendance,
             fg_color="blue",
             hover_color="darkblue"
@@ -72,19 +72,28 @@ class App(customtkinter.CTk):
         # Display User Button (Face Record)
         self.display_folders_button = customtkinter.CTkButton(
             self.sidebar_frame,
-            text="Face Record",
+            text="User Management",
             command=self.display_user_folders,
             fg_color="blue",
             hover_color="darkblue"
         )
         self.display_folders_button.grid(row=3, column=0, padx=20, pady=10)
 
+        self.reprocess_button = customtkinter.CTkButton(
+            self.sidebar_frame,
+            text="Reprocess All Users",
+            command=self.reprocess_users,
+            fg_color="orange",
+            hover_color="darkorange"
+        )
+        self.reprocess_button.grid(row=4, column=0, padx=20, pady=10)
+
         # Appearance mode label and menu
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=4, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
                                                                     command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=5, column=0, padx=20, pady=(10, 10))
+        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
 
         # Create textbox for displaying data
         self.textbox = customtkinter.CTkTextbox(self, width=250)
@@ -268,6 +277,8 @@ class App(customtkinter.CTk):
             face_capture.capture_faces()  # Capture faces
             face_capture.augment_faces()  # Perform augmentation
 
+            self.face_recognition_attendance.update_face_encodings()
+
             tkinter.messagebox.showinfo("Success", f"User with ID '{user_id}' has been added with captured and augmented faces.")
             self.display_user_folders()  # Refresh the displayed list of users
         except Exception as e:
@@ -362,6 +373,13 @@ class App(customtkinter.CTk):
         except Exception as e:
             tkinter.messagebox.showerror("Error", f"An error occurred while checking class IDs: {str(e)}")
 
+    def reprocess_users(self):
+        try:
+            self.face_recognition_attendance.reprocess_all_users()
+            tkinter.messagebox.showinfo("Success", "All users have been reprocessed and the pickle file has been recreated.")
+        except Exception as e:
+            tkinter.messagebox.showerror("Error", f"An error occurred while reprocessing users: {str(e)}")
+    
     def start_face_recognition(self):
         if self.face_recognition_attendance:
             self.face_recognition_attendance.process_video_stream()
